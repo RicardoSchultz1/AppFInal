@@ -1,6 +1,9 @@
 package com.example.appfinal.componentes
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -13,18 +16,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.lint.kotlin.metadata.Visibility
 
 @Composable
-fun CampoSenha() {
-    var senha by remember { mutableStateOf("") }
+fun CampoSenha(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String = "Senha",
+    //isError: Boolean = false
+) {
     var senhaVisivel by remember { mutableStateOf(false) }
 
     OutlinedTextField(
-        value = senha,
-        onValueChange = { senha = it },
-        label = { Text("Senha") },
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text(label) },
         singleLine = true,
+        //isError = isError,
         visualTransformation = if (senhaVisivel)
             VisualTransformation.None
         else
