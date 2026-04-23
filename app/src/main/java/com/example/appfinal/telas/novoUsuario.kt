@@ -1,5 +1,6 @@
 package com.example.appfinal.telas
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,17 +15,26 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appfinal.componentes.CampoSenha
-import com.example.appfinal.viewmodels.UsuarioViewModel
+import com.example.appfinal.dp.AppDataBase
+import model.CadastroViewModelFactory
+import viewModel.CadastroViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun novoUsuario(
-    onVoltar: () -> Unit,
-    viewModel: UsuarioViewModel = viewModel()
+    onVoltar: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: CadastroViewModel = viewModel(
+        factory = CadastroViewModelFactory(
+            AppDataBase.getDatabase(context)
+                .cadastroDao()
+        )
+    )
     val state = viewModel.uiState
 
     Scaffold(
@@ -80,19 +90,17 @@ fun novoUsuario(
             Text(text = "Senha", modifier = Modifier.padding(top = 16.dp))
             CampoSenha(
                 value = state.senha,
-                onValueChange = { viewModel.updateSenha(it) },
-                //isError = state.senhasDiferentes
+                onValueChange = { viewModel.updateSenha(it) }
             )
 
             Text(text = "Confirmar Senha", modifier = Modifier.padding(top = 16.dp))
             CampoSenha(
-                value = state.confirmarSenha,
+                value = viewModel.confirmarSenha,
                 onValueChange = { viewModel.updateConfirmarSenha(it) },
-                label = "Confirme sua senha",
-                //isError = state.senhasDiferentes
+                label = "Confirme sua senha"
             )
 
-            if (state.senhasDiferentes) {
+            if (viewModel.senhasDiferentes) {
                 Text(
                     text = "As senhas não coincidem",
                     color = Color.Red,
@@ -101,8 +109,13 @@ fun novoUsuario(
             }
 
             Button(
-                onClick = { onVoltar() },
-                enabled = !state.senhasDiferentes && state.senha.isNotEmpty() && state.fone.isNotEmpty() && state.email.isNotEmpty() && state.nome.isNotEmpty(),
+                onClick = { 
+                    viewModel.registrar(onSuccess = {
+                        Toast.makeText(context, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+                        onVoltar()
+                    })
+                },
+                enabled = !viewModel.senhasDiferentes && state.senha.isNotEmpty() && viewModel.confirmarSenha.isNotEmpty()&& state.fone.isNotEmpty() && state.email.isNotEmpty() && state.nome.isNotEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)

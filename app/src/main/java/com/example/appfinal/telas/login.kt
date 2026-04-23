@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appfinal.R
 import com.example.appfinal.componentes.CampoSenha
-import com.example.appfinal.viewmodels.LoginViewModel
+import model.LoginViewModel
 
 @Composable
 fun ModLogin(
