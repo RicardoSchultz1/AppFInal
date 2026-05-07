@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -15,6 +16,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,7 +29,7 @@ fun ModLogin(
     onEsqueciSenhaClick: () -> Unit,
     onLoginClick: () -> Unit,
     onNovoUsuario: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel
 ) {
     val state = viewModel.uiState
 
@@ -49,12 +51,14 @@ fun ModLogin(
                 painter = painterResource(id = R.drawable.pngfalso),
                 contentDescription = "Imagem de login",
             )
+            
             Text("Email")
             OutlinedTextField(
                 value = state.email,
                 onValueChange = { viewModel.updateEmail(it) },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                isError = state.mensagemErro != null
             )
 
             Text("Senha")
@@ -64,8 +68,19 @@ fun ModLogin(
                 label = ""
             )
 
+            state.mensagemErro?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
             Button(
-                onClick = onLoginClick,
+                onClick = {
+                    viewModel.fazerLogin(onSuccess = onLoginClick)
+                },
                 modifier = Modifier.padding(top = 16.dp)
             ) {
                 Text("Login")

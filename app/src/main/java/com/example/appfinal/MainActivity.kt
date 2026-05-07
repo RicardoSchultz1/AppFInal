@@ -7,13 +7,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import com.example.appfinal.dp.AppDataBase
 import com.example.appfinal.telas.ModLogin
 import com.example.appfinal.telas.esqueciSenha
 import com.example.appfinal.telas.menu
 import com.example.appfinal.telas.novoUsuario
 import com.example.appfinal.ui.theme.AppFInalTheme
+import model.LoginViewModel
+import model.LoginViewModelFactory
+import repository.LoginRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +27,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppFInalTheme {
+                val context = LocalContext.current
+                val db = remember { AppDataBase.getDatabase(context) }
+                val cadastroDao = remember { db.cadastroDao() }
+                val loginRepository = remember { LoginRepository(cadastroDao) }
+                
                 val backStack = remember { mutableStateListOf<Destino>(Destino.login) }
 
                 NavDisplay(
@@ -29,10 +40,14 @@ class MainActivity : ComponentActivity() {
                     entryProvider = { key ->
                         when (key) {
                             Destino.login -> NavEntry(key) {
+                                val loginViewModel: LoginViewModel = viewModel(
+                                    factory = LoginViewModelFactory(loginRepository)
+                                )
                                 ModLogin(
                                     onEsqueciSenhaClick = { backStack.add(Destino.esqueciSenha) },
                                     onLoginClick = { backStack.add(Destino.menu) },
-                                    onNovoUsuario = { backStack.add(Destino.novoUsuario) }
+                                    onNovoUsuario = { backStack.add(Destino.novoUsuario) },
+                                    viewModel = loginViewModel
                                 )
                             }
                             Destino.esqueciSenha -> NavEntry(key) {

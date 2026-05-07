@@ -25,4 +25,7 @@ interface CadastroDao {
     @Query("SELECT * FROM cadastros order by nome")
     suspend fun findAll(): List<Cadastro>
 
+    @Query("SELECT * FROM cadastros WHERE email = :email AND senha = :senha LIMIT 1")
+    suspend fun login(email: String, senha: String): Cadastro?
+
 }
